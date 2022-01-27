@@ -79,3 +79,8 @@ type Expected = {
   > 更多题目：https://tsch.js.org/zh-CN
 */
 
+/**
+ * 原本写的{T:V}, 这里的T为字符串，需要弄成变量
+ * { [p in T]: V }
+ * 
+ */
