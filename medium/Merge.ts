@@ -15,17 +15,17 @@
 // 第一版，少了一步
 // 提示的错误： 类型“FK”无法用于索引类型“S”
 // 应该是FK同时在两个对象上取值，没有约束到S上面，再次约束一下即可
-type Merge<F extends {}, S extends {}> = {
-  [FK in (keyof F | keyof S)] : FK extends keyof F ? F[FK] : S[FK]
-};
-
 // type Merge<F extends {}, S extends {}> = {
-//   [K in keyof F | keyof S]: K extends keyof S
-//     ? S[K]
-//     : K extends keyof F
-//     ? F[K]
-//   : never
-// }
+//   [FK in (keyof F | keyof S)] : FK extends keyof F ? F[FK] : S[FK]
+// };
+
+type Merge<F extends {}, S extends {}> = {
+  [K in keyof F | keyof S]: K extends keyof S
+    ? S[K]
+    : K extends keyof F
+    ? F[K]
+  : never
+}
 
 
 
