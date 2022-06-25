@@ -29,23 +29,34 @@
 /* _____________ 你的代码 _____________ */
 
 // 1. 如何判断他传值过来了的，目前使用默认值
-// 2. T[P] 这里取值问题，ts没有推断出来p是T的key
+// 2. T[P] 这里取值问题，ts没有推断出来p是T的key(如果extends后 ‘unknown’又不符合)
 
-// type RequiredByKeys<T, K = keyof T> =
-//   { [P in keyof T as P extends K ? P : never]-?: T[P] } &
-//   { [P in keyof T as P extends K ? never : P]: T[P] } extends infer O ? (
-//     { [P in keyof O]: O[P] }
-//   ) : never
+// 解
+// 第一个问题，还是可以使用默认值判断。现在的解法中，不用判断是否传如值。传入了就用传入的。没传入就用默认的原对象的key就可以把源对象键值对变为必选
+// 第二个问题，不应该在K上extends keyof T,这样肯定要需要符合T的键才可以传入。
+// 解决办法就是把循环中的 P in K,改为P in keyof T
 
-type RequiredByKeys2<T, K> =   {
-  [P in K as  hasKey<T, P>]-? : T[P]
-}
+type RequiredByKeys1<T, K = keyof T> =
+  { [P in keyof T as P extends K ? P : never]-?: T[P] } &
+  { [P in keyof T as P extends K ? never : P]: T[P] } extends infer O ? (
+    { [P in keyof O]: O[P] }
+  ) : never
+
+type RequiredByKeys<T, K = keyof T> =  flatObj<T & {
+  [P in keyof T as  hasKey<K, P>]-? : T[P]
+}>
+
+type xp = {name: 0} & {age: 10}
+type xp1 = {name: 0} & {name: 0}
+
+type okm<T = any> = T extends never ? 1 : 2
+type o = okm<1>
 
 type flatObj<T> = {
   [P in keyof T]: T[P]
 }
 
-type hasKey<T, P> = P extends keyof T ? P : never
+type hasKey<T, P> = P extends T ? P : never
 
 
 type oo = RequiredByKeys<User, 'name'>
@@ -77,8 +88,10 @@ interface UserRequiredNameAndAge {
   address?: string
 }
 
+
 type cases = [
   Expect<Equal<RequiredByKeys<User, 'name'>, UserRequiredName>>,
+  // Expect<Equal<RequiredByKeys<User, 'name'>, User & {name : string}>>,
   Expect<Equal<RequiredByKeys<User, 'name' | 'unknown'>, UserRequiredName>>,
   Expect<Equal<RequiredByKeys<User, 'name' | 'age'>, UserRequiredNameAndAge>>,
   Expect<Equal<RequiredByKeys<User>, Required<User>>>,
