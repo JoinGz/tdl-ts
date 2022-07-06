@@ -51,6 +51,13 @@ import { Equal, Expect } from '@type-challenges/utils'
 
 type cases = [Expect<Equal<DeepReadonly<X>, Expected>>]
 
+
+type D<T> = (keyof T) extends never ? T : {
+  readonly [key in  keyof T]: 66
+}
+
+type kl = D<'hello'>
+
 type X = {
   a: () => 22
   b: string
